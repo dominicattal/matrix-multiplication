@@ -2,11 +2,11 @@
 #include <glad.h>
 #include <glfw.h>
 #include <stdlib.h>
-#include <omp.h>
 #include <time.h>
 #include <sys/time.h>
+#include "matmul.h"
 
-#define MAX_N 100000
+#define MAX_N 10000
 #define MAX_ELE 20
 
 void mat_dump(long long N, int* mat, char* name) {
@@ -35,36 +35,7 @@ void fill_mats(long long N, int* mat1, int* mat2, int* mat3) {
     }
 }
 
-void sequential(long long N, int* mat1, int* mat2, int* mat3) {
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            mat3[i*N+j] = 0;
-            for (int k = 0; k < N; k++)
-                mat3[i*N+j] += mat1[i*N+k] * mat2[k*N+j];
-        }
-    }
-}
-
-void openmp(long long N, int* mat1, int* mat2, int* mat3) {
-    #pragma omp parallel
-    {
-        int num_threads = omp_get_num_threads();
-        int thread_num = omp_get_thread_num();
-        for (int i = thread_num; i < N; i+=num_threads) {
-            for (int j = 0; j < N; j++) {
-                mat3[i*N+j] = 0;
-                for (int k = 0; k < N; k++)
-                    mat3[i*N+j] += mat1[i*N+k] * mat2[k*N+j];
-            }
-        }
-    }
-}
-
-void opengl(long long N, int* mat1, int* mat2, int* mat3) {
-    puts("opengl test");
-}
-
-void run(void (*func)(long long, int*, int*, int*), long long N, int* mat1, int* mat2, int* mat3, char* message) {
+void run(void (*func)(), long long N, int* mat1, int* mat2, int* mat3, char* message) {
     struct timeval start, end;
     double sec;
     puts(message);
@@ -140,7 +111,9 @@ int main(int argc, char** argv) {
 
     run(&fill_mats, N, mat1, mat2, mat3, "Filling matrices with random numbers...");
     run(&sequential, N, mat1, mat2, mat3, "Running sequential multiplcation...");
-    run(&openmp, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
+    run(&openmp1, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
+    run(&openmp2, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
+    run(&openmp3, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
     run(&opengl, N, mat1, mat2, mat3, "Running GPU parallelized multiplcation...");
 
     /* mat_dump(N, mat1, "mat1.txt");
