@@ -2,7 +2,7 @@ export TEMP := ./.git/info/tmp
 export TMP := ./.git/info/tmp
 
 CC = gcc
-CFLAGS = -Wall -Wextra -O3
+CFLAGS = -O3
 NAME = matmul
 SRC_DIR = src
 BIN_DIR = bin
