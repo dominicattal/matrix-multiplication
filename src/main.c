@@ -36,15 +36,28 @@ void fill_mats(long long N, int* mat1, int* mat2, int* mat3) {
 }
 
 void sequential(long long N, int* mat1, int* mat2, int* mat3) {
-    int res;
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < N; j++)
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            mat3[i*N+j] = 0;
             for (int k = 0; k < N; k++)
                 mat3[i*N+j] += mat1[i*N+k] * mat2[k*N+j];
+        }
+    }
 }
 
 void openmp(long long N, int* mat1, int* mat2, int* mat3) {
-    puts("openmp test");
+    #pragma omp parallel
+    {
+        int num_threads = omp_get_num_threads();
+        int thread_num = omp_get_thread_num();
+        for (int i = thread_num; i < N; i+=num_threads) {
+            for (int j = 0; j < N; j++) {
+                mat3[i*N+j] = 0;
+                for (int k = 0; k < N; k++)
+                    mat3[i*N+j] += mat1[i*N+k] * mat2[k*N+j];
+            }
+        }
+    }
 }
 
 void opengl(long long N, int* mat1, int* mat2, int* mat3) {
@@ -115,7 +128,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    int* mat3 = calloc(N * N, sizeof(int));
+    int* mat3 = malloc(N * N * sizeof(int));
     if (mat3 == NULL) {
         puts("Failed to allocate memory for mat3");
         glfwDestroyWindow(context);
@@ -130,9 +143,9 @@ int main(int argc, char** argv) {
     run(&openmp, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
     run(&opengl, N, mat1, mat2, mat3, "Running GPU parallelized multiplcation...");
 
-    mat_dump(N, mat1, "mat1.txt");
+    /* mat_dump(N, mat1, "mat1.txt");
     mat_dump(N, mat2, "mat2.txt");
-    mat_dump(N, mat3, "mat3.txt");
+    mat_dump(N, mat3, "mat3.txt"); */
 
     free(mat1);
     free(mat2);
