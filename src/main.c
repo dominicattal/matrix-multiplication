@@ -9,6 +9,23 @@
 
 #define MAX_N 100000
 
+void mat_dump(long long N, int* mat, char* name) {
+    FILE* fptr = fopen(name, "w");
+    if (fptr == NULL) {
+        puts("Something went wrong");
+        exit(1);
+    }
+    printf("Creating matrix dump in %s...\n", name);
+    fprintf(fptr, "N = %-d\n", N);
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            fprintf(fptr, "%-10d ", mat[N*i+j]);
+        }
+        fprintf(fptr, "\n");
+    }
+    fclose(fptr);
+}
+
 void fill_mats(long long N, int* mat1, int* mat2, int* mat3) {
     for (long long i = 0; i < N; i++) {
         for (long long j = 0; j < N; j++) {
