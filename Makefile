@@ -4,6 +4,7 @@ export TMP := ./.git/info/tmp
 CC = gcc
 CFLAGS = -O3 -fopenmp
 NAME = matmul
+MAT_DIR = mats
 SRC_DIR = src
 BIN_DIR = bin
 OBJ_DIR = obj
@@ -16,8 +17,11 @@ INCLUDES = $(patsubst %, -I./%, $(INCLUDE_DIRS))
 SRCS = $(shell find $(SRC_DIR) $(LIB_DIR) -name "*.c")
 OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
 
-all: $(OBJS) | $(BIN_DIR)
+all: $(OBJS) $(BIN_DIR) $(MAT_DIR)
 	@$(CC) $(CFLAGS) $(OBJS) $(INCLUDES) $(LIBS) -o $(BIN_DIR)/$(NAME)
+
+$(MAT_DIR):
+	@mkdir -p $(MAT_DIR)
 
 $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
@@ -27,6 +31,6 @@ $(OBJ_DIR)/%.o: %.c
 	@$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)/$(NAME)
+	rm -rf $(OBJ_DIR) $(BIN_DIR)/$(NAME) $(MAT_DIR)
 
 .PHONY: clean

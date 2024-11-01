@@ -9,4 +9,9 @@ void openmp2();
 void openmp3();
 void opengl();
 
+/* --------------------------------------------- */
+
+int initialize_compute_shader(void);
+void destroy_compute_shader(void);
+
 #endif

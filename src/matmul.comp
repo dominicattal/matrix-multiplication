@@ -1,0 +1,28 @@
+#version 460
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+uniform int A_width;
+uniform int B_width;
+
+layout (std430, binding = 0) readonly buffer MatrixA {
+    int A[];
+};
+
+layout (std430, binding = 1) readonly buffer MatrixB {
+    int B[];
+};
+
+layout (std430, binding = 2) writeonly buffer MatrixC {
+    int C[];
+};
+
+void main() {
+    uint row = gl_GlobalInvocationID.y;
+    uint col = gl_GlobalInvocationID.x;
+
+    C[row * B_width + col] = 0;
+    for (int i = 0; i < A_width; i++) {
+        C[row * B_width + col] += A[row * A_width + i] * B[i * B_width + col];
+    }
+}

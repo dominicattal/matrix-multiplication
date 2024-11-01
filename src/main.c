@@ -13,7 +13,7 @@ void mat_dump(long long N, int* mat, char* name) {
     FILE* fptr = fopen(name, "w");
     if (fptr == NULL) {
         puts("Something went wrong");
-        exit(1);
+        return;
     }
     printf("Creating matrix dump in %s...\n", name);
     fprintf(fptr, "N = %-d\n", N);
@@ -47,7 +47,6 @@ void run(void (*func)(), long long N, int* mat1, int* mat2, int* mat3, char* mes
 }
 
 int main(int argc, char** argv) {
-
     if (argc == 1) {
         puts("Input matrix size");
         return 1;
@@ -64,6 +63,8 @@ int main(int argc, char** argv) {
         puts("Failed to initialize glfw");
         return 1;
     }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
     GLFWwindow* context = glfwCreateWindow(1,1,"offscreen", NULL, NULL);
@@ -81,7 +82,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    printf("Loaded glad successfully\n\n");
+    printf("Loaded glad successfully\n");
 
     int* mat1 = malloc(N * N * sizeof(int));
     if (mat1 == NULL) {
@@ -107,23 +108,44 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    printf("Allocated matrices successfully\n");
     srand(time(NULL));
 
-    run(&fill_mats, N, mat1, mat2, mat3, "Filling matrices with random numbers...");
-    run(&sequential, N, mat1, mat2, mat3, "Running sequential multiplcation...");
-    run(&openmp1, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
-    run(&openmp2, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
-    run(&openmp3, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
-    run(&opengl, N, mat1, mat2, mat3, "Running GPU parallelized multiplcation...");
+    if (!initialize_compute_shader()) {
+        puts("Failed to initalize compute shader");
+        free(mat1);
+        free(mat2);
+        free(mat3);
+        glfwDestroyWindow(context);
+        glfwTerminate();
+        return 1;
+    }
+    printf("Initalized compute shader successfully\n\n");
 
-    /* mat_dump(N, mat1, "mat1.txt");
-    mat_dump(N, mat2, "mat2.txt");
-    mat_dump(N, mat3, "mat3.txt"); */
+    run(&fill_mats, N, mat1, mat2, mat3, "Filling matrices with random numbers...");
+    mat_dump(N, mat1, "mats/mat1.txt");
+    mat_dump(N, mat2, "mats/mat2.txt");
+    puts("");
+
+    run(&sequential, N, mat1, mat2, mat3, "Running sequential multiplcation...");
+    mat_dump(N, mat3, "mats/sequential.txt");
+
+    run(&openmp1, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
+    mat_dump(N, mat3, "mats/cpu1.txt");
+
+    run(&openmp2, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
+    mat_dump(N, mat3, "mats/cpu2.txt");
+
+    run(&openmp3, N, mat1, mat2, mat3, "Running CPU parallelized multiplcation...");
+    mat_dump(N, mat3, "mats/cpu3.txt");
+
+    run(&opengl, N, mat1, mat2, mat3, "Running GPU parallelized multiplcation...");
+    mat_dump(N, mat3, "mats/gpu.txt");
 
     free(mat1);
     free(mat2);
     free(mat3);
-
+    destroy_compute_shader();
     glfwDestroyWindow(context);
     glfwTerminate();
     return 0;
