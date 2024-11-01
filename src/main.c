@@ -27,8 +27,9 @@ void mat_dump(long long N, int* mat, char* name) {
     printf("Creating matrix dump in %s...\n", name);
     fprintf(fptr, "N = %-d\n", N);
     for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++)
+        for (int j = 0; j < N; j++) {
             fprintf(fptr, "%-10d ", mat[N*i+j]);
+        }
         fprintf(fptr, "\n");
     }
     fclose(fptr);
@@ -173,8 +174,8 @@ int main(int argc, char** argv) {
     srand(time(NULL));
 
     if (flags[OPENGL_FLAG]) {
-        if (!initialize_compute_shaders()) {
-            puts("Failed to initalize compute shaders");
+        if (!initialize_compute_shader()) {
+            puts("Failed to initalize compute shader");
             free(mat1);
             free(mat2);
             free(mat3);
@@ -231,7 +232,7 @@ int main(int argc, char** argv) {
     free(mat1);
     free(mat2);
     free(mat3);
-    destroy_compute_shaders();
+    destroy_compute_shader();
     glfwDestroyWindow(context);
     glfwTerminate();
     return 0;

@@ -11,7 +11,7 @@ void opengl();
 
 /* --------------------------------------------- */
 
-int initialize_compute_shaders(void);
-void destroy_compute_shaders(void);
+int initialize_compute_shader(void);
+void destroy_compute_shader(void);
 
 #endif
