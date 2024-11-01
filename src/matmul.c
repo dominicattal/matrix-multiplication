@@ -74,9 +74,8 @@ void opengl(long long N, int* mat1, int* mat2, int* mat3) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferC);
     glBufferData(GL_SHADER_STORAGE_BUFFER, size, NULL, GL_STATIC_DRAW);
     glUseProgram(program);
-    glUniform1i(glGetUniformLocation(program, "A_width"), N);
-    glUniform1i(glGetUniformLocation(program, "B_width"), N);
-    glDispatchCompute(N, N, 1);
+    glUniform1i(glGetUniformLocation(program, "N"), N);
+    glDispatchCompute((N + 15) / 16, (N + 15) / 16, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, size, mat3);
 }
